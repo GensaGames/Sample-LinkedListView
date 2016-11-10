@@ -1,52 +1,64 @@
 package linkedlistview.sample.github.linkedlistview.controller.adapter;
 
-import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-import com.gensagames.linkedlistview.LinkedListView;
-
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import linkedlistview.sample.github.linkedlistview.R;
-import linkedlistview.sample.github.linkedlistview.controller.model.MusicItem;
+import linkedlistview.sample.github.linkedlistview.controller.model.MusicListItem;
 
 /**
  * Created by GensaGames
  * GensaGames
  */
 
-public class MusicListAdapter extends LinkedListView.Adapter {
+public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.MyViewHolder> {
 
-    private Context context;
-    private List<MusicItem> itemsList;
-    private List<View> viewsLinkedList;
+    private List<MusicListItem> mMusicListItems;
 
-    public MusicListAdapter(Context context) {
-        this.context = context;
-        itemsList = new ArrayList<>();
-        viewsLinkedList = new LinkedList<>();
+    public MusicListAdapter() {
+        this.mMusicListItems = new LinkedList<>();
     }
 
-    public void addItemList (MusicItem musicItem) {
-        itemsList.add(musicItem);
+    @Override
+    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.adapter_music_list_item, parent, false);
+        return new MyViewHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(MyViewHolder holder, int position) {
+        MusicListItem movie = mMusicListItems.get(position);
+        holder.mTitle.setText(movie.getTitle());
+        holder.mDuration.setText(movie.getDuration());
+        holder.mAuthor.setText(movie.getAuthor());
+    }
+
+    @Override
+    public int getItemCount() {
+        return mMusicListItems.size();
+    }
+
+    public void addAll(List<MusicListItem> musicListItems) {
+        this.mMusicListItems.addAll(musicListItems);
         notifyDataSetChanged();
     }
 
-    @Override
-    public View getObjectView(int position, ViewGroup parentView) {
-        if (position >= viewsLinkedList.size() || viewsLinkedList.get(position) == null) {
-            LayoutInflater inflater = LayoutInflater.from(context);
-            viewsLinkedList.add(inflater.inflate(R.layout.adapter_music_item, parentView, false));
-        }
-        return viewsLinkedList.get(position);
-    }
+    class MyViewHolder extends RecyclerView.ViewHolder {
 
-    @Override
-    public int getObjectCount() {
-        return itemsList.size();
+        private TextView mTitle, mDuration, mAuthor;
+
+        private MyViewHolder(View view) {
+            super(view);
+            mTitle = (TextView) view.findViewById(R.id.adapter_title);
+            mDuration = (TextView) view.findViewById(R.id.adapter_duration);
+            mAuthor = (TextView) view.findViewById(R.id.adapter_author);
+        }
     }
 }

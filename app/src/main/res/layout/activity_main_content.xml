@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:mContext="linkedlistview.sample.github.linkedlistview.view.MainActivity"
+    tools:showIn="@layout/activity_main_header">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.gensagames.linkedlistview.LinkedListView
+            android:id="@+id/content.linkedlistview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:background="@android:color/white"
+            android:overScrollMode="never"
+            android:requiresFadingEdge="none"
+            android:scrollbars="none" />
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/content.viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="300dp">
+
+        </android.support.v4.view.ViewPager>
+
+
+    </LinearLayout>
+</android.support.v4.widget.NestedScrollView>

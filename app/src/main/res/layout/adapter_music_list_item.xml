@@ -73,7 +73,7 @@
                     android:layout_gravity="end|center_vertical"
                     android:contentDescription="@null"
                     android:src="@mipmap/ic_play_circle_filled_black_24dp"
-                    android:tint="@color/colorIconGray" />
+                    android:tint="@color/colorAccentGrey" />
             </FrameLayout>
 
 

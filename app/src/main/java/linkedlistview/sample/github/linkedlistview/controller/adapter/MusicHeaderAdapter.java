@@ -16,7 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import linkedlistview.sample.github.linkedlistview.R;
-import linkedlistview.sample.github.linkedlistview.controller.model.MusicHeaderItem;
+import linkedlistview.sample.github.linkedlistview.model.MusicHeaderItem;
 
 /**
  * Created by GensaGames

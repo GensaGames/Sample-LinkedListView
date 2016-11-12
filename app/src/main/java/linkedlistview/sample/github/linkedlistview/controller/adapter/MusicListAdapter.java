@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import linkedlistview.sample.github.linkedlistview.R;
-import linkedlistview.sample.github.linkedlistview.controller.model.MusicListItem;
+import linkedlistview.sample.github.linkedlistview.model.MusicListItem;
 
 /**
  * Created by GensaGames

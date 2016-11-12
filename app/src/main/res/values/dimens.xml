@@ -2,6 +2,16 @@
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
+    <!-- Header Activity -->
+    <dimen name="header_vumeter_width">150dp</dimen>
+    <dimen name="header_vumeter_space_tittle">100dp</dimen>
+    <dimen name="header_visual_total_waves">120dp</dimen>
+    <dimen name="header_visual_wave_height">42dp</dimen>
+    <dimen name="header_visual_bubbles_size">30dp</dimen>
+    <dimen name="header_tabs_indicator_height">5dp</dimen>
+    <dimen name="header_bar_margin_start">170dp</dimen>
+    <dimen name="header_bar_image_size">45dp</dimen>
+
     <!-- Margins and Padding -->
     <dimen name="main_big_space">20dp</dimen>
     <dimen name="main_small_space">10dp</dimen>

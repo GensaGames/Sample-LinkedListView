@@ -1,4 +1,4 @@
-package linkedlistview.sample.github.linkedlistview.controller.model;
+package linkedlistview.sample.github.linkedlistview.model;
 
 /**
  * Created by GensaGames

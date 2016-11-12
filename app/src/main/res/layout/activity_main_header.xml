@@ -2,6 +2,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:vumeter="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -15,19 +16,94 @@
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/header.toolbar.layout"
+            android:id="@+id/header.collapsing.layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
+
+            <com.cleveroad.audiovisualization.GLAudioVisualizationView xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/header.visualizer.view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:av_backgroundColor="@color/colorAccent"
+                app:av_bubblesPerLayer="16"
+                app:av_bubblesRandomizeSizes="true"
+                app:av_bubblesSize="@dimen/header_visual_bubbles_size"
+                app:av_layersCount="4"
+                app:av_wavesCount="7"
+                app:av_wavesFooterHeight="@dimen/header_visual_total_waves"
+                app:av_wavesHeight="@dimen/header_visual_wave_height" />
+
             <android.support.v7.widget.Toolbar
                 android:id="@+id/header.toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
+                app:popupTheme="@style/AppTheme.PopupOverlay">
+
+                <Space
+                    android:layout_width="@dimen/header_vumeter_space_tittle"
+                    android:layout_height="wrap_content" />
+
+            </android.support.v7.widget.Toolbar>
+
+            <io.gresse.hugo.vumeterlibrary.VuMeterView
+                android:id="@+id/header.vumeter"
+                android:layout_width="@dimen/header_vumeter_width"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginEnd="@dimen/main_small_space"
+                android:layout_marginStart="@dimen/main_small_space"
+                app:layout_collapseMode="pin"
+                vumeter:vumeter_backgroundColor="@android:color/white" />
+
+            <LinearLayout
+                android:id="@+id/header.button.bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/header_bar_margin_start"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="@dimen/main_small_space"
+                android:paddingEnd="@dimen/main_big_space"
+                android:paddingStart="@dimen/main_big_space"
+                app:layout_collapseMode="pin">
+
+                <ImageView
+                    android:layout_width="@dimen/header_bar_image_size"
+                    android:layout_height="@dimen/header_bar_image_size"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_weight="1"
+                    android:contentDescription="@null"
+                    android:src="@mipmap/ic_skip_previous_circle_black_24dp"
+                    android:tint="@android:color/white" />
+
+
+                <ImageView
+                    android:layout_width="@dimen/header_bar_image_size"
+                    android:layout_height="@dimen/header_bar_image_size"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_weight="1"
+                    android:contentDescription="@null"
+                    android:src="@mipmap/ic_star_black_24dp"
+                    android:tint="@android:color/white" />
+
+
+                <ImageView
+                    android:layout_width="@dimen/header_bar_image_size"
+                    android:layout_height="@dimen/header_bar_image_size"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_weight="1"
+                    android:contentDescription="@null"
+                    android:src="@mipmap/ic_skip_next_circle_black_24dp"
+                    android:tint="@android:color/white" />
+
+
+            </LinearLayout>
+
 
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
@@ -44,7 +120,8 @@
         android:minHeight="?attr/actionBarSize"
         app:layout_anchor="@id/header.content"
         app:layout_anchorGravity="bottom"
-        app:tabIndicatorColor="@android:color/white"
+        app:tabIndicatorColor="@color/colorAccent"
+        app:tabIndicatorHeight="@dimen/header_tabs_indicator_height"
         app:tabMode="fixed"
         app:tabSelectedTextColor="@android:color/white"
         app:tabTextColor="@android:color/white" />
@@ -54,8 +131,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
+        android:scaleType="center"
         app:layout_anchor="@id/header.appbar"
         app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        app:srcCompat="@android:drawable/ic_media_play" />
 
 </android.support.design.widget.CoordinatorLayout>

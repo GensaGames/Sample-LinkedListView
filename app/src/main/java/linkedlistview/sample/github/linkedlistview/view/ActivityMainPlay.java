@@ -206,6 +206,7 @@ public class ActivityMainPlay extends BaseActivity implements LinkedListView.OnI
         mLinkedListView.getMainViewHolder().setPadding(sidePadding, 0, sidePadding, 0);
         mLinkedListView.onScrollChanged();
     }
+    
 
     @SuppressWarnings("unused")
     @OnClick(R.id.header_fab)

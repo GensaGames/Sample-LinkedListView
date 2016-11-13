@@ -1,4 +1,4 @@
-package linkedlistview.sample.github.linkedlistview.view;
+package linkedlistview.sample.github.linkedlistview.view.base;
 
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;

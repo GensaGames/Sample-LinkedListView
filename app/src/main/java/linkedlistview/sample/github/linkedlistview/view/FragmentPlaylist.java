@@ -21,7 +21,7 @@ import linkedlistview.sample.github.linkedlistview.stub.StubItems;
  * GensaGames
  */
 
-public class PlaylistFragment extends Fragment {
+public class FragmentPlaylist extends Fragment {
 
     @BindView(R.id.content_recyclerview)
     public RecyclerView mRecyclerView;

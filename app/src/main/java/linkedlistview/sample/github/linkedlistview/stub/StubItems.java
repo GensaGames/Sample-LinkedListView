@@ -11,7 +11,7 @@ import java.util.Random;
 import linkedlistview.sample.github.linkedlistview.R;
 import linkedlistview.sample.github.linkedlistview.model.MusicHeaderItem;
 import linkedlistview.sample.github.linkedlistview.model.MusicListItem;
-import linkedlistview.sample.github.linkedlistview.view.PlaylistFragment;
+import linkedlistview.sample.github.linkedlistview.view.FragmentPlaylist;
 
 /**
  * Created by GensaGames
@@ -22,12 +22,15 @@ public class StubItems {
 
     public static final String SAMPLE_MUSIC_1 = "sample_song_1";
     public static final String SAMPLE_MUSIC_FOLDER = "raw";
-    public static final long ANIM_SCROLLTO_DUR = 500L;
     public static final int VU_METER_ITEMS = 7;
+
+    public static final long ANIM_LINKEDLIST_SELECT = 500L;
+    public static final long ANIM_STAR_BOUND_DUR = 400L;
 
     public static final float MIN_VUMETER_SCALE = 0.6f;
     public static final float MAX_VUMETER_TRANSLATE = -60f;
-    public static final float MAX_SCROLL_HIDE_BAR = 0.6f;
+    public static final float MAX_HEADER_BAR_SCALE = 0.8f;
+    public static final float MAX_SCROLL_HIDE_BAR = 0.45f;
 
     private static final int PLAYLIST_ITEMS_MIN = 10;
     private static final int PLAYLIST_ITEMS_MAX = 15;
@@ -53,7 +56,7 @@ public class StubItems {
     public static List<Fragment> getBasePlaylistFragments() {
         List<Fragment> fragments = new ArrayList<>();
         for (int i = 0; i < PLAYLIST_COUNT; i++) {
-            fragments.add(new PlaylistFragment());
+            fragments.add(new FragmentPlaylist());
         }
         return fragments;
     }

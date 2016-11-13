@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:mContext="linkedlistview.sample.github.linkedlistview.view.MainActivity">
+    tools:mContext="linkedlistview.sample.github.linkedlistview.view.ActivityMainPlay">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/header.appbar"
@@ -19,6 +19,8 @@
             android:id="@+id/header.collapsing.layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
@@ -65,41 +67,45 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/header_bar_margin_start"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:gravity="center"
                 android:orientation="horizontal"
                 android:padding="@dimen/main_small_space"
-                android:paddingEnd="@dimen/main_big_space"
-                android:paddingStart="@dimen/main_big_space"
                 app:layout_collapseMode="pin">
 
-                <ImageView
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/header.bar.previous"
                     android:layout_width="@dimen/header_bar_image_size"
                     android:layout_height="@dimen/header_bar_image_size"
-                    android:layout_gravity="end|center_vertical"
-                    android:layout_weight="1"
                     android:contentDescription="@null"
-                    android:src="@mipmap/ic_skip_previous_circle_black_24dp"
-                    android:tint="@android:color/white" />
+                    android:scaleType="center"
+                    android:tint="@color/colorAccent"
+                    app:backgroundTint="@android:color/white"
+                    app:srcCompat="@mipmap/ic_skip_previous_circle_black_24dp" />
 
-
-                <ImageView
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/header.bar.star"
                     android:layout_width="@dimen/header_bar_image_size"
                     android:layout_height="@dimen/header_bar_image_size"
-                    android:layout_gravity="end|center_vertical"
-                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/main_small_space"
+                    android:layout_marginStart="@dimen/main_small_space"
                     android:contentDescription="@null"
-                    android:src="@mipmap/ic_star_black_24dp"
-                    android:tint="@android:color/white" />
+                    android:scaleType="center"
+                    android:tint="@color/colorAccent"
+                    app:backgroundTint="@android:color/white"
+                    app:fabSize="normal"
+                    app:srcCompat="@mipmap/ic_star_black_24dp" />
 
-
-                <ImageView
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/header.bar.next"
                     android:layout_width="@dimen/header_bar_image_size"
                     android:layout_height="@dimen/header_bar_image_size"
-                    android:layout_gravity="end|center_vertical"
-                    android:layout_weight="1"
                     android:contentDescription="@null"
-                    android:src="@mipmap/ic_skip_next_circle_black_24dp"
-                    android:tint="@android:color/white" />
+                    android:scaleType="center"
+                    android:tint="@color/colorAccent"
+                    app:backgroundTint="@android:color/white"
+                    app:srcCompat="@mipmap/ic_skip_next_circle_black_24dp" />
 
 
             </LinearLayout>
@@ -131,6 +137,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
+        android:background="@android:color/white"
         android:scaleType="center"
         app:layout_anchor="@id/header.appbar"
         app:layout_anchorGravity="bottom|end"

@@ -10,7 +10,7 @@
     <dimen name="header_visual_bubbles_size">30dp</dimen>
     <dimen name="header_tabs_indicator_height">5dp</dimen>
     <dimen name="header_bar_margin_start">170dp</dimen>
-    <dimen name="header_bar_image_size">45dp</dimen>
+    <dimen name="header_bar_image_size">50dp</dimen>
 
     <!-- Margins and Padding -->
     <dimen name="main_big_space">20dp</dimen>

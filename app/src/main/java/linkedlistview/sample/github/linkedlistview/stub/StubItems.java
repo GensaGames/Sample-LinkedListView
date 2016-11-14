@@ -24,6 +24,7 @@ public class StubItems {
     public static final String SAMPLE_MUSIC_FOLDER = "raw";
     public static final int VU_METER_ITEMS = 7;
 
+    public static final long ANIM_LINKEDLIST_BOUNDS = 1000L;
     public static final long ANIM_LINKEDLIST_SELECT = 500L;
     public static final long ANIM_STAR_BOUND_DUR = 400L;
 

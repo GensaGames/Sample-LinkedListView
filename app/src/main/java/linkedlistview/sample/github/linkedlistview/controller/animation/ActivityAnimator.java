@@ -6,22 +6,25 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
 import android.view.animation.BounceInterpolator;
+import android.view.animation.Transformation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import linkedlistview.sample.github.linkedlistview.model.AnimBounceTask;
+import linkedlistview.sample.github.linkedlistview.model.AnimPaddingTask;
 
 /**
  * Created by GensaGames
  * GensaGames
  */
 
-public class ActivityMainPlayAnimator {
+public class ActivityAnimator {
 
-    private static final String TAG = ActivityMainPlayAnimator.class.getSimpleName();
+    private static final String TAG = ActivityAnimator.class.getSimpleName();
     private static final long ANIM_RAND_UPPER_DUR = 12000L;
     private static final long ANIM_RAND_LOWER_DUR = 4000L;
 
@@ -32,7 +35,7 @@ public class ActivityMainPlayAnimator {
     private long mUpperDuration;
     private long mLowerDuration;
 
-    public ActivityMainPlayAnimator() {
+    public ActivityAnimator() {
         mMainThreadHandler = new Handler(Looper.getMainLooper());
         mBounceInterpolator = new BounceInterpolator();
         listActiveTask = new ArrayList<>();
@@ -47,9 +50,32 @@ public class ActivityMainPlayAnimator {
         mLowerDuration = lower;
     }
 
-    public long getRandomDuration() {
+    private long getRandomDuration() {
         return mLowerDuration + (long) (mLocalRandom.nextDouble() *
                 (mUpperDuration - mLowerDuration));
+    }
+
+    public void animatePaddingChange(final AnimPaddingTask animPaddingTask) {
+        final int padding[] = animPaddingTask.getPadding();
+        final View animatedView = animPaddingTask.getAnimatedView();
+        final AnimPaddingTask.OnAnimationFrame onAnimationFrame =
+                animPaddingTask.getOnAnimationFrame();
+
+        if (padding.length != 4) {
+            throw new IndexOutOfBoundsException("Padding requires only/least 4 Fields");
+        }
+        Animation anim = new Animation() {
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                animatedView.setPadding((int) (padding[0] * interpolatedTime), (int) (padding[1] *
+                                interpolatedTime), (int) (padding[2] * interpolatedTime),
+                        (int) (padding[3] * interpolatedTime));
+                onAnimationFrame.onAnimationFrame();
+            }
+        };
+        anim.setDuration(animPaddingTask.getDuration());
+        anim.setAnimationListener(animPaddingTask.getAnimationListener());
+        animatedView.startAnimation(anim);
     }
 
     public void loopRandomDelayedAnim(AnimBounceTask bounceTask) {

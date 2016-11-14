@@ -68,6 +68,7 @@
                 </LinearLayout>
 
                 <ImageView
+                    android:id="@+id/adapter.image.play"
                     android:layout_width="@dimen/adapter_music_image_play"
                     android:layout_height="@dimen/adapter_music_image_play"
                     android:layout_gravity="end|center_vertical"

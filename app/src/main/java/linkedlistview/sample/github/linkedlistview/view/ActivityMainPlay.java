@@ -33,9 +33,10 @@ import io.gresse.hugo.vumeterlibrary.VuMeterView;
 import linkedlistview.sample.github.linkedlistview.R;
 import linkedlistview.sample.github.linkedlistview.controller.adapter.MusicHeaderAdapter;
 import linkedlistview.sample.github.linkedlistview.controller.adapter.PlaylistPagerAdapter;
-import linkedlistview.sample.github.linkedlistview.controller.animation.ActivityMainPlayAnimator;
+import linkedlistview.sample.github.linkedlistview.controller.animation.ActivityAnimator;
 import linkedlistview.sample.github.linkedlistview.controller.animation.MusicHeaderAnimator;
 import linkedlistview.sample.github.linkedlistview.model.AnimBounceTask;
+import linkedlistview.sample.github.linkedlistview.model.AnimPaddingTask;
 import linkedlistview.sample.github.linkedlistview.stub.StubItems;
 import linkedlistview.sample.github.linkedlistview.view.base.BaseActivity;
 
@@ -82,7 +83,7 @@ public class ActivityMainPlay extends BaseActivity implements LinkedListView.OnI
     private MusicHeaderAdapter mMusicHeaderAdapter;
     private MusicHeaderAnimator mMusicHeaderAnimator;
     private PlaylistPagerAdapter mPlaylistPagerAdapter;
-    private ActivityMainPlayAnimator activityMainPlayAnimator;
+    private ActivityAnimator activityAnimator;
 
     private boolean mIsHeaderBarHidden;
 
@@ -102,9 +103,10 @@ public class ActivityMainPlay extends BaseActivity implements LinkedListView.OnI
         mMainToolbar.setTitle(LoremIpsum.getInstance().getWords(3, 5));
         mVuMeterView.setBlockNumber(StubItems.VU_METER_ITEMS);
         mVuMeterView.stop(false);
-        mHeaderBarLayout.setScaleX(StubItems.MAX_HEADER_BAR_SCALE);
-        mHeaderBarLayout.setScaleY(StubItems.MAX_HEADER_BAR_SCALE);
+        mHeaderBarLayout.setScaleX(0);
+        mHeaderBarLayout.setScaleY(0);
         mAppBarLayout.addOnOffsetChangedListener(this);
+        mAppBarLayout.setExpanded(false, false);
         setSupportActionBar(mMainToolbar);
     }
 
@@ -124,23 +126,30 @@ public class ActivityMainPlay extends BaseActivity implements LinkedListView.OnI
     }
 
     private void starAnimDispatcher() {
-        activityMainPlayAnimator = new ActivityMainPlayAnimator();
-        activityMainPlayAnimator.loopRandomDelayedAnim(new AnimBounceTask(mBarStar,
+        activityAnimator = new ActivityAnimator();
+        activityAnimator.loopRandomDelayedAnim(new AnimBounceTask(mBarStar,
                 StubItems.ANIM_STAR_BOUND_DUR, (mBarStar.getWidth() / 3),
                 AnimBounceTask.State.START));
-        Log.e("Te", "START: 3  " + (mBarStar.getMeasuredWidth() / 3));
-        Log.e("Te", "START: wdith " + mBarStar.getMeasuredWidth());
     }
 
-    private void updatePlayState() {
+    public void updatePlayState(boolean play) {
         if (mMediaPlayer.isPlaying()) {
+            if (play) {
+                return;
+            }
             mMediaPlayer.pause();
             mVuMeterView.stop(true);
             mMainFab.setImageDrawable(ContextCompat.getDrawable(ActivityMainPlay.this,
                     android.R.drawable.ic_media_play));
         } else {
+            if (!play) {
+                return;
+            }
             mMediaPlayer.start();
             mVuMeterView.resume(true);
+            mMusicHeaderAnimator.animateScrollTo(mLinkedListView.getMainViewHolder()
+                    .getChildAt(mMusicHeaderAnimator.getCenterViewIndex()), StubItems
+                    .ANIM_LINKEDLIST_SELECT);
             mMainFab.setImageDrawable(ContextCompat.getDrawable(ActivityMainPlay.this,
                     android.R.drawable.ic_media_pause));
         }
@@ -201,18 +210,49 @@ public class ActivityMainPlay extends BaseActivity implements LinkedListView.OnI
     }
 
     private void updateListBounds() {
+        mAppBarLayout.setExpanded(true, true);
         int sidePadding = mLinkedListView.getWidth() / 2 - mLinkedListView
                 .getPaddingStart() - mLinkedListView.getPaddingEnd();
-        mLinkedListView.getMainViewHolder().setPadding(sidePadding, 0, sidePadding, 0);
-        mLinkedListView.onScrollChanged();
+        int padding[] = new int[]{sidePadding, 0, sidePadding, 0};
+        AnimPaddingTask animPaddingTask = new AnimPaddingTask(mLinkedListView.getMainViewHolder(),
+                StubItems.ANIM_LINKEDLIST_BOUNDS, padding, null, new AnimPaddingTask.OnAnimationFrame() {
+            @Override
+            public void onAnimationFrame() {
+                mLinkedListView.onScrollChanged();
+            }
+        });
+        activityAnimator.animatePaddingChange(animPaddingTask);
     }
     
 
     @SuppressWarnings("unused")
     @OnClick(R.id.header_fab)
     public void onClickPlayFab() {
-        updatePlayState();
+        updatePlayState(!mMediaPlayer.isPlaying());
     }
+
+    @SuppressWarnings("unused")
+    @OnClick(R.id.header_bar_next)
+    public void onClickNextFab() {
+        int index = mMusicHeaderAnimator.getCenterViewIndex() + 1;
+        if (index >= mMusicHeaderAdapter.getObjectCount()) {
+            return;
+        }
+        mMusicHeaderAnimator.animateScrollTo(mLinkedListView.getMainViewHolder()
+                .getChildAt(index), StubItems.ANIM_LINKEDLIST_SELECT);
+    }
+
+    @SuppressWarnings("unused")
+    @OnClick(R.id.header_bar_previous)
+    public void onClickPreviousFab() {
+        int index = mMusicHeaderAnimator.getCenterViewIndex() - 1;
+        if (index < 0) {
+            return;
+        }
+        mMusicHeaderAnimator.animateScrollTo(mLinkedListView.getMainViewHolder()
+                .getChildAt(index), StubItems.ANIM_LINKEDLIST_SELECT);
+    }
+
 
     @Override
     public void onDestroy() {
@@ -237,9 +277,9 @@ public class ActivityMainPlay extends BaseActivity implements LinkedListView.OnI
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
         if (hasWindowFocus) {
-            updateListBounds();
             checkActivityPermissions();
             starAnimDispatcher();
+            updateListBounds();
         }
     }
 
@@ -271,10 +311,8 @@ public class ActivityMainPlay extends BaseActivity implements LinkedListView.OnI
     @Override
     @SuppressWarnings("ALL")
     public void onItemClick(View view) {
-        if (true) {
-            mMusicHeaderAnimator.animateScrollTo(view, StubItems.ANIM_LINKEDLIST_SELECT);
-        }
-        Log.e("Te", "view: " + view.getTranslationZ());
+        Log.e(ActivityMainPlay.class.getSimpleName(), "onItemClick: " + view.getId());
+        mMusicHeaderAnimator.animateScrollTo(view, StubItems.ANIM_LINKEDLIST_SELECT);
     }
 
 

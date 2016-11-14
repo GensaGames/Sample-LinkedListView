@@ -7,11 +7,20 @@ package linkedlistview.sample.github.linkedlistview.model;
 
 public class MusicListItem {
     private String mTitle, mDuration, mAuthor;
+    private boolean mIsPlaying;
 
     public MusicListItem(String title, String genre, String year) {
         this.mTitle = title;
         this.mDuration = genre;
         this.mAuthor = year;
+    }
+
+    public void setIsPlaying(boolean isPlaying) {
+        this.mIsPlaying = isPlaying;
+    }
+
+    public boolean isPlaying() {
+        return mIsPlaying;
     }
 
     public String getTitle() {

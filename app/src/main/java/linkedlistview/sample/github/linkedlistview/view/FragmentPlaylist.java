@@ -10,10 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import linkedlistview.sample.github.linkedlistview.R;
 import linkedlistview.sample.github.linkedlistview.controller.adapter.MusicListAdapter;
+import linkedlistview.sample.github.linkedlistview.model.MusicListItem;
 import linkedlistview.sample.github.linkedlistview.stub.StubItems;
 
 /**
@@ -21,7 +24,7 @@ import linkedlistview.sample.github.linkedlistview.stub.StubItems;
  * GensaGames
  */
 
-public class FragmentPlaylist extends Fragment {
+public class FragmentPlaylist extends Fragment implements MusicListAdapter.OnItemPlayClick {
 
     @BindView(R.id.content_recyclerview)
     public RecyclerView mRecyclerView;
@@ -41,10 +44,20 @@ public class FragmentPlaylist extends Fragment {
     }
 
     private void setupRecyclerView() {
-        mMusicListAdapter = new MusicListAdapter();
+        mMusicListAdapter = new MusicListAdapter(getContext());
         mMusicListAdapter.addAll(StubItems.getBasePlaylistMusicItems());
+        mMusicListAdapter.setOnItemPlayClick(this);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setAdapter(mMusicListAdapter);
+    }
+
+    @Override
+    public void onItemPlayClick(int layoutPosition) {
+        List<MusicListItem> musicListItems = mMusicListAdapter.getMusicListItems();
+        boolean itemIsNotPlaying = !musicListItems.get(layoutPosition).isPlaying();
+        mMusicListAdapter.updatePlayingState(itemIsNotPlaying, layoutPosition);
+        ((ActivityMainPlay) getActivity()).updatePlayState(itemIsNotPlaying);
+
     }
 }

@@ -1,4 +1,4 @@
-<resources>
-    <string name="app_name">Sample-LinkedListView</string>
-    <string name="action_settings">Settings</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">LinkedListView</string>
+    <string name="action_settings" tools:keep="@string/action_settings">Settings</string>
 </resources>

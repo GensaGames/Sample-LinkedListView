@@ -19,7 +19,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fab_margin"
-            android:background="@android:color/white"
             android:overScrollMode="never"
             android:requiresFadingEdge="none"
             android:scrollbars="none" />

@@ -5,9 +5,13 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.AppLaunchChecker;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
@@ -42,6 +46,9 @@ import linkedlistview.sample.github.linkedlistview.view.base.BaseActivity;
 
 public class ActivityMainPlay extends BaseActivity implements LinkedListView.OnItemClickListener,
         AppBarLayout.OnOffsetChangedListener {
+
+    @SuppressWarnings("unused")
+    private static final String TAG = ActivityMainPlay.class.getSimpleName();
 
     @BindView(R.id.header_toolbar)
     public Toolbar mMainToolbar;
@@ -82,9 +89,10 @@ public class ActivityMainPlay extends BaseActivity implements LinkedListView.OnI
     private MediaPlayer mMediaPlayer;
     private MusicHeaderAdapter mMusicHeaderAdapter;
     private MusicHeaderAnimator mMusicHeaderAnimator;
+
+    @SuppressWarnings("FieldCanBeLocal")
     private PlaylistPagerAdapter mPlaylistPagerAdapter;
     private ActivityAnimator activityAnimator;
-
     private boolean mIsHeaderBarHidden;
 
     @Override
@@ -98,6 +106,88 @@ public class ActivityMainPlay extends BaseActivity implements LinkedListView.OnI
         setupViewPager();
         setupMediaPlayer();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mVisualWaves.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        mVisualWaves.onPause();
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mVisualWaves.release();
+        mMediaPlayer.release();
+    }
+
+    @Override
+    public void onFirstFocusedStart() {
+        Log.e(TAG, "onFirstFocusedStart: ");
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                checkActivityPermissions();
+                starAnimDispatcher();
+                updateListBounds();
+            }
+        }, StubItems.DELAY_BASE_ANIM_INIT);
+    }
+
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+        float currentScrollPercentage = (float) Math.abs(verticalOffset)
+                / appBarLayout.getTotalScrollRange();
+        updateToolbarScroll(currentScrollPercentage);
+    }
+
+    @Override
+    public void onItemClick(View view) {
+        mMusicHeaderAnimator.animateScrollTo(view, StubItems.ANIM_LINKEDLIST_SELECT);
+        Log.e(TAG, "onItemClick: " + view.getId());
+    }
+
+    @Override
+    public ArrayList<String> requiredPermissions() {
+        return new ArrayList<>(Arrays.asList(Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.MODIFY_AUDIO_SETTINGS));
+    }
+
+    @Override
+    public void onPermissionsGranted() {
+        updateToolbarVisualizer();
+    }
+
+    @Override
+    public void onPermissionsDenied(List<String> deniedPermissionList) {
+        /**-------------------------
+         * TODO(Permission): ROFL
+         * -----------------------*/
+    }
+
+    @SuppressWarnings("unused")
+    @OnClick(R.id.header_fab)
+    public void onClickPlayFab() {
+        updatePlayState(!mMediaPlayer.isPlaying());
+    }
+
+    @SuppressWarnings("unused")
+    @OnClick(R.id.header_bar_next)
+    public void onClickNextFab() {
+        selectHeaderMusicItem(1);
+    }
+
+    @SuppressWarnings("unused")
+    @OnClick(R.id.header_bar_previous)
+    public void onClickPreviousFab() {
+        selectHeaderMusicItem(-1);
+    }
+
 
     private void setupToolbar() {
         mMainToolbar.setTitle(LoremIpsum.getInstance().getWords(3, 5));
@@ -118,13 +208,6 @@ public class ActivityMainPlay extends BaseActivity implements LinkedListView.OnI
         mMediaPlayer.setLooping(true);
     }
 
-    private void updateToolbarVisualizer() {
-        VisualizerDbmHandler visualizerHandler = DbmHandler.Factory
-                .newVisualizerHandler(ActivityMainPlay.this, mMediaPlayer);
-        mVisualWaves.linkTo(visualizerHandler);
-        visualizerHandler.onResume();
-    }
-
     private void starAnimDispatcher() {
         activityAnimator = new ActivityAnimator();
         activityAnimator.loopRandomDelayedAnim(new AnimBounceTask(mBarStar,
@@ -132,29 +215,43 @@ public class ActivityMainPlay extends BaseActivity implements LinkedListView.OnI
                 AnimBounceTask.State.START));
     }
 
-    public void updatePlayState(boolean play) {
-        if (mMediaPlayer.isPlaying()) {
-            if (play) {
-                return;
-            }
-            mMediaPlayer.pause();
-            mVuMeterView.stop(true);
-            mMainFab.setImageDrawable(ContextCompat.getDrawable(ActivityMainPlay.this,
-                    android.R.drawable.ic_media_play));
-        } else {
-            if (!play) {
-                return;
-            }
-            mMediaPlayer.start();
-            mVuMeterView.resume(true);
-            mMusicHeaderAnimator.animateScrollTo(mLinkedListView.getMainViewHolder()
-                    .getChildAt(mMusicHeaderAnimator.getCenterViewIndex()), StubItems
-                    .ANIM_LINKEDLIST_SELECT);
-            mMainFab.setImageDrawable(ContextCompat.getDrawable(ActivityMainPlay.this,
-                    android.R.drawable.ic_media_pause));
+    private void setupViewPager() {
+        mPlaylistPagerAdapter = new PlaylistPagerAdapter(getSupportFragmentManager());
+        mPlaylistPagerAdapter.addAll(StubItems.getBasePlaylistFragments(),
+                StubItems.getBasePlaylistTitles());
+
+        mTabLayout.setupWithViewPager(mViewPager, true);
+        mViewPager.setAdapter(mPlaylistPagerAdapter);
+    }
+
+    private void setupLinkedList() {
+        mMusicHeaderAdapter = new MusicHeaderAdapter(getApplicationContext());
+        mMusicHeaderAdapter.addItemList(StubItems.getBaseMusicItems());
+        mMusicHeaderAdapter.setOnItemClickListener(this);
+        mLinkedListView.setAdapter(mMusicHeaderAdapter);
+
+        mMusicHeaderAnimator = new MusicHeaderAnimator();
+        mMusicHeaderAnimator.setMaxSideRotation(StubItems.MAX_LINKEDLIST_ROTATION);
+        mMusicHeaderAnimator.setMaxTranslationX(StubItems.MAX_LINKEDLIST_TRANSLATION);
+        mMusicHeaderAnimator.setOptLeftOverlap(StubItems.OPT_LINKEDLIST_OVERLAP);
+        mMusicHeaderAnimator.setOptRightOverlap(StubItems.OPT_LINKEDLIST_OVERLAP);
+        mMusicHeaderAnimator.setSupportRotationY(true);
+        mLinkedListView.setAnimationController(mMusicHeaderAnimator);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mMusicHeaderAnimator.setSupportTranslationZ(true);
         }
     }
 
+    private void selectHeaderMusicItem(int indexChange) {
+        int index = mMusicHeaderAnimator.getCenterViewIndex() + indexChange;
+        if (index < 0 || index >= mMusicHeaderAdapter.getObjectCount()) {
+            return;
+        }
+        Log.e("Ind", "Index: " + index);
+        mMusicHeaderAnimator.animateScrollTo(mLinkedListView.getMainViewHolder()
+                .getChildAt(index), StubItems.ANIM_LINKEDLIST_SELECT);
+    }
 
     private void updateToolbarScroll(float scrollPercentage) {
         float differenceScale = 1 - StubItems.MIN_VUMETER_SCALE;
@@ -181,32 +278,34 @@ public class ActivityMainPlay extends BaseActivity implements LinkedListView.OnI
         }
     }
 
-    private void setupViewPager() {
-        mPlaylistPagerAdapter = new PlaylistPagerAdapter(getSupportFragmentManager());
-        mPlaylistPagerAdapter.addAll(StubItems.getBasePlaylistFragments(),
-                StubItems.getBasePlaylistTitles());
-
-        mTabLayout.setupWithViewPager(mViewPager, true);
-        mViewPager.setAdapter(mPlaylistPagerAdapter);
+    public void updatePlayState(boolean play) {
+        if (mMediaPlayer.isPlaying()) {
+            if (play) {
+                return;
+            }
+            mMediaPlayer.pause();
+            mVuMeterView.stop(true);
+            mMainFab.setImageDrawable(ContextCompat.getDrawable(ActivityMainPlay.this,
+                    android.R.drawable.ic_media_play));
+        } else {
+            if (!play) {
+                return;
+            }
+            mMediaPlayer.start();
+            mVuMeterView.resume(true);
+            mMusicHeaderAnimator.animateScrollTo(mLinkedListView.getMainViewHolder()
+                    .getChildAt(mMusicHeaderAnimator.getCenterViewIndex()), StubItems
+                    .ANIM_LINKEDLIST_SELECT);
+            mMainFab.setImageDrawable(ContextCompat.getDrawable(ActivityMainPlay.this,
+                    android.R.drawable.ic_media_pause));
+        }
     }
 
-    private void setupLinkedList() {
-        mMusicHeaderAdapter = new MusicHeaderAdapter(getApplicationContext());
-        mMusicHeaderAdapter.addItemList(StubItems.getBaseMusicItems());
-        mMusicHeaderAdapter.setOnItemClickListener(this);
-        mLinkedListView.setAdapter(mMusicHeaderAdapter);
-
-        mMusicHeaderAnimator = new MusicHeaderAnimator();
-        mMusicHeaderAnimator.setMaxSideRotation(40);
-        mMusicHeaderAnimator.setMaxTranslationX(120);
-        mMusicHeaderAnimator.setOptLeftOverlap(-40);
-        mMusicHeaderAnimator.setOptRightOverlap(-40);
-        mMusicHeaderAnimator.setSupportRotationY(true);
-        mLinkedListView.setAnimationController(mMusicHeaderAnimator);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mMusicHeaderAnimator.setSupportTranslationZ(true);
-        }
+    private void updateToolbarVisualizer() {
+        VisualizerDbmHandler visualizerHandler = DbmHandler.Factory
+                .newVisualizerHandler(ActivityMainPlay.this, mMediaPlayer);
+        mVisualWaves.linkTo(visualizerHandler);
+        visualizerHandler.onResume();
     }
 
     private void updateListBounds() {
@@ -222,97 +321,6 @@ public class ActivityMainPlay extends BaseActivity implements LinkedListView.OnI
             }
         });
         activityAnimator.animatePaddingChange(animPaddingTask);
-    }
-    
-
-    @SuppressWarnings("unused")
-    @OnClick(R.id.header_fab)
-    public void onClickPlayFab() {
-        updatePlayState(!mMediaPlayer.isPlaying());
-    }
-
-    @SuppressWarnings("unused")
-    @OnClick(R.id.header_bar_next)
-    public void onClickNextFab() {
-        int index = mMusicHeaderAnimator.getCenterViewIndex() + 1;
-        if (index >= mMusicHeaderAdapter.getObjectCount()) {
-            return;
-        }
-        mMusicHeaderAnimator.animateScrollTo(mLinkedListView.getMainViewHolder()
-                .getChildAt(index), StubItems.ANIM_LINKEDLIST_SELECT);
-    }
-
-    @SuppressWarnings("unused")
-    @OnClick(R.id.header_bar_previous)
-    public void onClickPreviousFab() {
-        int index = mMusicHeaderAnimator.getCenterViewIndex() - 1;
-        if (index < 0) {
-            return;
-        }
-        mMusicHeaderAnimator.animateScrollTo(mLinkedListView.getMainViewHolder()
-                .getChildAt(index), StubItems.ANIM_LINKEDLIST_SELECT);
-    }
-
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mVisualWaves.release();
-        mMediaPlayer.release();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mVisualWaves.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        mVisualWaves.onPause();
-        super.onPause();
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasWindowFocus) {
-        super.onWindowFocusChanged(hasWindowFocus);
-        if (hasWindowFocus) {
-            checkActivityPermissions();
-            starAnimDispatcher();
-            updateListBounds();
-        }
-    }
-
-    @Override
-    public ArrayList<String> requiredPermissions() {
-        return new ArrayList<>(Arrays.asList(Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.MODIFY_AUDIO_SETTINGS));
-    }
-
-    @Override
-    public void onPermissionsDenied(List<String> deniedPermissionList) {
-        /**-------------------------
-         * TODO(Permission): ROFL
-         * -----------------------*/
-    }
-
-    @Override
-    public void onPermissionsGranted() {
-        updateToolbarVisualizer();
-    }
-
-    @Override
-    public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-        float currentScrollPercentage = (float) Math.abs(verticalOffset)
-                / appBarLayout.getTotalScrollRange();
-        updateToolbarScroll(currentScrollPercentage);
-    }
-
-    @Override
-    @SuppressWarnings("ALL")
-    public void onItemClick(View view) {
-        Log.e(ActivityMainPlay.class.getSimpleName(), "onItemClick: " + view.getId());
-        mMusicHeaderAnimator.animateScrollTo(view, StubItems.ANIM_LINKEDLIST_SELECT);
     }
 
 

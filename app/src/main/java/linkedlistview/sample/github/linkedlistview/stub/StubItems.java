@@ -20,13 +20,28 @@ import linkedlistview.sample.github.linkedlistview.view.FragmentPlaylist;
 
 public class StubItems {
 
+    /**
+     * TODO(Dimens) Optimize Const below
+     * In scope of device resolutions support
+     * For now, it's only for Nexus 4 (API 23 768 - 1280)
+     */
+    public static final int VU_METER_ITEMS = 7;
+    public static final int OPT_LINKEDLIST_OVERLAP = -40;
+    public static final int MAX_LINKEDLIST_ROTATION = 40;
+    public static final int MAX_LINKEDLIST_TRANSLATION = 120;
+
+    /**
+     * ---------------------- *** ---------------------------
+     *----------------------- *** ---------------------------
+     */
+
     public static final String SAMPLE_MUSIC_1 = "sample_song_1";
     public static final String SAMPLE_MUSIC_FOLDER = "raw";
-    public static final int VU_METER_ITEMS = 7;
 
     public static final long ANIM_LINKEDLIST_BOUNDS = 1000L;
     public static final long ANIM_LINKEDLIST_SELECT = 500L;
     public static final long ANIM_STAR_BOUND_DUR = 400L;
+    public static final long DELAY_BASE_ANIM_INIT = 500L;
 
     public static final float MIN_VUMETER_SCALE = 0.6f;
     public static final float MAX_VUMETER_TRANSLATE = -60f;
